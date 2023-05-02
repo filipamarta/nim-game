@@ -1,3 +1,18 @@
+# NIM GAME
+
+![alt text](https://github.com/filipamarta/nim-game/blob/main/public/layout.png)
+
+Game Rules:
+
+Nim is a game for 2 players. Given a heap of 13 matches, on every move, a player must take 1, 2 or 3 matches from the heap,
+until no matches are left. The player who draws the last match loses. There are many variations of the Nim game, this one is
+called misère game (on one row or heap).
+For the moves done by the computer the number of matches taken by the computer can be chosen randomly. Of course, it
+must not exceed the number of available matches, e.g. if there are only two matches left the computer can only take one or
+two matches.
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
