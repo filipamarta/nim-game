@@ -1,8 +1,8 @@
 import React, { useState, useContext, createContext, useEffect } from 'react';
 import { ReactNode } from 'react';
-import { MatchType, Player } from '../utils/types';
+import { MatchType } from '../utils/types';
 import {
-  findWinner,
+  delay,
   getRandomIntInclusive,
   maxMatchesSelectedByComputer,
 } from '../utils/calculations';
@@ -27,13 +27,12 @@ type GameContextType = {
   matchesList: MatchType[];
   humanGame: ({ id }: MatchType) => void;
   resetGame: () => void;
-  resetRound: () => void;
   nextRound: () => void;
   roundsNumber: number;
   matchesCounter: number;
   isComputerPlaying: boolean;
   isGameFinished: boolean;
-  winner: Player;
+  winnerDetails: MatchType;
 };
 
 type GameContextProviderType = {
@@ -43,14 +42,13 @@ type GameContextProviderType = {
 const defaultValues: GameContextType = {
   matchesList: [],
   humanGame: () => {},
-  resetRound: () => {},
   nextRound: () => {},
   resetGame: () => {},
   roundsNumber: 0,
   matchesCounter: 0,
   isComputerPlaying: false,
   isGameFinished: false,
-  winner: '',
+  winnerDetails: { id: 0, name: 'available', player: '', round: 0 },
 };
 
 const GameContext = createContext<GameContextType>(defaultValues);
@@ -78,23 +76,29 @@ const GameContextProvider = ({
   const [isComputerPlaying, setIsComputerPlaying] = useState(false);
   const [roundsNumber, setRoundsNumber] = useState(0);
   const [matchesCounter, setMatchesCounter] = useState(0);
-  const [winner, setWinner] = useState<Player>('');
+  const [winnerDetails, setWinnerDetails] = useState<MatchType>({
+    id: 0,
+    name: 'available',
+    player: '',
+    round: 0,
+  });
 
   const startGame = () => {
     // to avoid mutations on the array, I create a clone of the original array
     const starterList: MatchType[] = gameList.map((a) => ({ ...a }));
     setMatchesList(starterList);
+    // set setIsGameStarted boolean to true
     setIsGameStarted(true);
+    // set roundsNumber to 1
     setRoundsNumber((prev) => 1);
   };
 
   const resetGame = () => {
-    // when user clicks in re-start button, the game will reset
+    // when user clicks in re-start button, the game will reset and start again
     setIsGameFinished(false);
     setRoundsNumber((prev) => 0);
     setMatchesCounter(0);
     startGame();
-    console.log('reset game');
   };
 
   const nextRound = () => {
@@ -102,17 +106,28 @@ const GameContextProvider = ({
     setIsComputerPlaying(true);
     setMatchesCounter(0);
     setRoundsNumber((prev) => (prev += 1));
-    console.log('nextRound is called');
   };
 
   const gameOver = () => {
     // Game over happens when selectedList is full and we have a winner.
-    const who = findWinner(roundsNumber);
-    setWinner(who);
+
+    const lastSelection = selectedList.find(
+      (item) => item.round === roundsNumber
+    );
+
+    if (lastSelection) {
+      setWinnerDetails({
+        id: lastSelection.id,
+        name: lastSelection.name,
+        player: lastSelection.player,
+        round: lastSelection.round,
+      });
+    }
     setIsGameFinished(true);
   };
 
   const updateList = ({ id, name, player, round }: MatchType) => {
+    // this runs everytime the human or the computer updates matchesList
     const list = matchesList.map((item) => {
       if (item.id === id) {
         item.name = name;
@@ -127,6 +142,7 @@ const GameContextProvider = ({
   };
 
   const humanGame = (match: MatchType) => {
+    // human can only play till 3 matches
     if (matchesCounter < 3) {
       setMatchesCounter((prev) => (prev += 1));
       updateList({
@@ -138,7 +154,7 @@ const GameContextProvider = ({
     }
   };
 
-  const computerGame = () => {
+  const computerGame = async () => {
     const firstElement = 0;
     const lastElement = availableList.length - 1;
     const maxMatchesSelected = maxMatchesSelectedByComputer();
@@ -161,15 +177,22 @@ const GameContextProvider = ({
           player: 'computer',
           round: roundsNumber,
         });
+
+        /*  
+          computer has a timeout to improve ux BUT IS NOT WORKING PROPERLY!
+          I've tried to find a good way to do this and I cound't. Maybe it's a good topic for discussion :)
+          I tried setTimeout or setInterval in ways that the counter blocked the continuation of the script and I wasn't able to do it. 
+          I really wanted this to work, can you help me out? ty
+        */
+
+        await delay(1500);
       }
     }
 
+    // finish computer game and start next round
     setIsComputerPlaying(false);
+    setMatchesCounter(0);
     setRoundsNumber((prev) => (prev += 1));
-  };
-
-  const resetRound = () => {
-    console.log('resetRound game');
   };
 
   useEffect(() => {
@@ -199,7 +222,6 @@ const GameContextProvider = ({
   useEffect(() => {
     // when the page is rendered, the game started
     startGame();
-    console.log('start game');
   }, []);
 
   return (
@@ -208,13 +230,12 @@ const GameContextProvider = ({
         matchesList,
         humanGame,
         resetGame,
-        resetRound,
         nextRound,
         roundsNumber,
         matchesCounter,
         isComputerPlaying,
         isGameFinished,
-        winner,
+        winnerDetails,
       }}
     >
       {children}

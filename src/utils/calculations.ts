@@ -1,5 +1,3 @@
-import { Player } from './types';
-
 export const getRandomIntInclusive = ({
   min,
   max,
@@ -12,15 +10,9 @@ export const getRandomIntInclusive = ({
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const maxMatchesSelectedByComputer = () => {
+export const maxMatchesSelectedByComputer = (): number => {
   return getRandomIntInclusive({ max: 3, min: 1 });
 };
 
-export const findWinner = (number: number): Player => {
-  /* 
-    To find the winner, verify if roundsNumber are odd or even.
-    If roundsNumber is odd human wins (game always start with a human play).
-    If roundsNumber is even computer win. 
-  */
-  return number % 2 === 0 ? 'computer' : 'human';
-};
+export const delay = async (ms: number) =>
+  new Promise((res) => setTimeout(res, ms));
