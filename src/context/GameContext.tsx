@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useContext, createContext, useEffect } from 'react';
 import { ReactNode } from 'react';
 import { MatchType } from '../utils/types';
@@ -71,7 +72,6 @@ const GameContextProvider = ({
   const [matchesList, setMatchesList] = useState<MatchType[]>([]);
   const [availableList, setAvailableList] = useState<MatchType[]>(matchesList);
   const [selectedList, setSelectedList] = useState<MatchType[]>([]);
-  const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [isComputerPlaying, setIsComputerPlaying] = useState(false);
   const [roundsNumber, setRoundsNumber] = useState(0);
@@ -87,8 +87,6 @@ const GameContextProvider = ({
     // to avoid mutations on the array, I create a clone of the original array
     const starterList: MatchType[] = gameList.map((a) => ({ ...a }));
     setMatchesList(starterList);
-    // set setIsGameStarted boolean to true
-    setIsGameStarted(true);
     // set roundsNumber to 1
     setRoundsNumber((prev) => 1);
   };
